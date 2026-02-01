@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Havenelle 💖</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Segoe UI',sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  overflow-x:hidden;
+  background:url('https://i.pinimg.com/originals/f2/dm/uf/F2dMuFDEP.jpeg') no-repeat center center/cover;
+  position:relative;
+  transition:background 2s ease;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(255,182,213,0.2);
+  z-index:0;
+  animation:shimmer 10s ease-in-out infinite alternate;
+}
+@keyframes shimmer{
+  0%{background:rgba(255,182,213,0.2);}
+  50%{background:rgba(255,182,213,0.35);}
+  100%{background:rgba(255,182,213,0.2);}
+}
+
+.card{
+  position:relative;
+  z-index:2;
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(8px);
+  padding:2rem;
+  border-radius:1.5rem;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  max-width:95%;
+  width:400px;
+  animation:glow 3s ease-in-out infinite alternate;
+}
+@keyframes glow{
+  0%{box-shadow:0 0 20px rgba(255,182,213,0.5),0 0 40px rgba(255,105,180,0.3);}
+  100%{box-shadow:0 0 50px rgba(255,182,213,0.8),0 0 80px rgba(255,105,180,0.5);}
+}
+
+h1{color:#ff4f9a;font-size:2rem;margin-bottom:0.5rem;}
+.photos{display:flex;justify-content:center;gap:10px;margin:1rem 0;flex-wrap:wrap;}
+.photos img{width:90px;height:110px;object-fit:cover;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.3);cursor:pointer;transition:transform 0.3s,filter 0.3s;}
+.photos img:hover{transform:scale(1.15) rotate(-3deg);filter:drop-shadow(0 0 10px #ff4f9a);}
+
+button{padding:0.8rem 1.5rem;border:none;border-radius:30px;font-size:1rem;cursor:pointer;margin:0.5rem;transition:transform 0.2s,background 0.3s;}
+button:hover{transform:scale(1.1);}
+#yes{background:#ff4f9a;color:white;}
+#no{background:#f1f1f1;}
+.hidden{display:none;}
+
+.hearts span,.floatingWords span{
+  position:fixed;
+  bottom:0;
+  font-size:20px;
+  pointer-events:none;
+  z-index:1;
+}
+.floatingWords span{transition:transform 12s linear,opacity 6s ease-in-out;}
+
+.egg{margin-top:0.5rem;color:#ff4f9a;font-size:0.9rem;opacity:0;animation:fadeIn 1.5s forwards;}
+@keyframes fadeIn{to{opacity:1;}}
+
+#reasonList{
+  position:fixed;bottom:20px;right:20px;
+  background:linear-gradient(135deg,#ff9ce1,#ffc0cb);
+  padding:12px 18px;border-radius:15px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.25);
+  max-width:300px;font-size:0.85rem;
+  z-index:3;overflow-y:auto;max-height:50vh;
+  display:none;
+  transition:all 0.5s ease-in-out;
+  scrollbar-width:thin;
+  scrollbar-color:#ff4f9a #ffc0cb;
+}
+#reasonList::-webkit-scrollbar{width:6px;}
+#reasonList::-webkit-scrollbar-thumb{background:#ff4f9a;border-radius:3px;}
+#reasonList::-webkit-scrollbar-track{background:#ffc0cb;}
+
+#reasonList ol{padding-left:18px;margin:0;}
+#reasonList li{
+  margin:6px 0;
+  opacity:0;
+  transform:translateX(-20px);
+  transition:all 0.5s ease;
+  cursor:pointer;
+}
+#reasonList li:hover{
+  transform:translateX(0) scale(1.05);
+  color:#fff;
+  text-shadow:0 0 8px #ff4f9a;
+}
+
+#reasonTab{position:fixed;bottom:20px;left:20px;background:#ff4f9a;color:white;padding:10px 15px;border-radius:20px;font-weight:bold;cursor:pointer;z-index:3;transition:transform 0.2s,background 0.3s;}
+#reasonTab:hover{transform:scale(1.1);background:#ff6fb3;}
+
+@media(max-width:600px){
+  .card{width:90%;padding:1.5rem;}
+  h1{font-size:1.5rem;}
+  .photos img{width:60px;height:80px;}
+  button{font-size:0.9rem;padding:0.6rem 1.2rem;}
+}
+@media(max-width:400px){
+  h1{font-size:1.3rem;}
+  .photos{gap:5px;}
+  .photos img{width:50px;height:70px;}
+  button{font-size:0.8rem;padding:0.5rem 1rem;}
+}
+
+/* Modal */
+#essayModal {
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.7);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:10;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.4s ease;
+}
+#essayModal.show{
+  opacity:1;
+  pointer-events:auto;
+}
+.modalContent{
+  background:#fff0f5;
+  padding:2rem;
+  border-radius:1rem;
+  max-width:90%;
+  max-height:80%;
+  overflow-y:auto;
+  box-shadow:0 0 30px rgba(255,105,180,0.7);
+  transform:scale(0.8);
+  transition:transform 0.4s ease, box-shadow 1s infinite alternate;
+  animation:glowPulse 2s ease-in-out infinite alternate;
+  color:#b03060;
+  line-height:1.6;
+  font-size:1rem;
+}
+@keyframes glowPulse{
+  0%{box-shadow:0 0 30px rgba(255,105,180,0.7);}
+  50%{box-shadow:0 0 50px rgba(255,105,180,1);}
+  100%{box-shadow:0 0 30px rgba(255,105,180,0.7);}
+}
+#closeModal{
+  position:absolute;
+  top:10px;
+  right:15px;
+  font-size:1.5rem;
+  font-weight:bold;
+  cursor:pointer;
+  color:#ff4f9a;
+}
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop>
+  <source src="https://raw.githubusercontent.com/AdelIbrahiiim/valentine/main/Bon%20Iver%20%26%20St.%20Vincent%20-%20Roslyn.mp3" type="audio/mpeg">
+</audio>
+
+<div class="hearts"></div>
+<div class="floatingWords"></div>
+
+<div class="card">
+  <h1>💌 Havenelle</h1>
+  <p>Would you like to be my Valentine? 💕</p>
+  <div class="photos">
+    <img src="https://i.imgur.com/hxvzFA4.jpeg" alt="Photo 1">
+    <img src="https://i.imgur.com/9jsSFw4.jpeg" alt="Photo 2">
+    <img src="https://i.imgur.com/JZ5DEA8.jpeg" alt="Photo 3">
+  </div>
+  <button id="yes">Yes 💖</button>
+  <button id="no">No 🙃</button>
+  <p id="response" class="hidden">You were always the answer.</p>
+  <p id="secret1" class="hidden egg">I’ve been wanting to ask you this.</p>
+  <p id="secret2" class="hidden egg">I made this just for you.</p>
+  <p id="secret3" class="hidden egg">You make things feel lighter.</p>
+  <p id="secret4" class="hidden egg">You're My Arcadia Bay. 💖</p>
+  <p id="secret5" class="hidden egg">Good luck on DSPC! You got this! 🌟</p>
+  <p id="photoMessage" class="hidden egg">That photo means more than you think 💗</p>
+  <p id="finalMessage" class="hidden egg"></p>
+  <button id="essayBtn" class="hidden">Read Your Special Note 💌</button>
+</div>
+
+<div id="reasonTab">💖 Open me! 💖</div>
+<div id="reasonList"><ol id="reasonContent"></ol></div>
+
+<!-- Essay Modal -->
+<div id="essayModal" class="hidden">
+  <div class="modalContent">
+    <span id="closeModal">&times;</span>
+    <h2>Your Special Note 💌</h2>
+    <p id="essayContent"></p>
+  </div>
+</div>
+
+<script>
+// Elements
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const response = document.getElementById("response");
+const heartContainer = document.querySelector(".hearts");
+const wordsContainer = document.querySelector(".floatingWords");
+const music = document.getElementById("bgMusic");
+const secrets = [
+  document.getElementById("secret1"),
+  document.getElementById("secret2"),
+  document.getElementById("secret3"),
+  document.getElementById("secret4"),
+  document.getElementById("secret5")
+];
+const photoMessage = document.getElementById("photoMessage");
+const finalMessage = document.getElementById("finalMessage");
+const photos = document.querySelectorAll(".photos img");
+const loveWords = [
+  "I love you 💖","Je t'aime 💖","Te amo 💖","Ich liebe dich 💖",
+  "Ti amo 💖","Eu te amo 💖","Я тебя люблю 💖","사랑해 💖",
+  "Te iubesc 💖","Aku cinta kamu 💖","Saranghae 💖","Aishiteru 💖"
+];
+
+// Floating words
+function createWord(){
+  const span = document.createElement("span");
+  span.textContent = loveWords[Math.floor(Math.random()*loveWords.length)];
+  span.style.left = Math.random()*90 + "vw";
+  span.style.fontSize = (16 + Math.random()*16) + "px";
+  span.style.color = "#ff4f9a";
+  span.style.opacity = 0;
+  span.style.transform = `translateY(0) rotate(0deg)`;
+  span.style.position = "fixed";
+  span.style.bottom = "-30px";
+  span.style.zIndex = 1;
+
+  const duration = 6 + Math.random()*6;
+  const rotation = 180 + Math.random()*360;
+  span.style.transition = `transform ${duration}s linear, opacity ${duration/2}s ease-in-out`;
+
+  wordsContainer.appendChild(span);
+
+  requestAnimationFrame(() => {
+    span.style.opacity = 1;
+    span.style.transform = `translateY(-120vh) rotate(${rotation}deg)`;
+  });
+
+  setTimeout(() => { span.style.opacity=0; }, (duration*500));
+  setTimeout(() => span.remove(), duration*1000);
+}
+
+// Hearts
+function createHeart(x=null,y=null,burst=false){
+  const heart = document.createElement("span");
+  heart.innerHTML = "💖";
+  heart.style.left = x!==null?x+"px":Math.random()*100+"vw";
+  heart.style.bottom = y!==null?y+"px":"-20px";
+  heart.style.fontSize = burst?"32px":"20px";
+  heart.style.animationDuration = (burst?2:4)+"s";
+  heartContainer.appendChild(heart);
+  setTimeout(()=>heart.remove(),5000);
+}
+
+// Reasons
+const reasons=[
+  "Because your smile brightens my day 🌞","Because your laugh is my favorite sound 😂","Because every text from you makes me blush 😊",
+"Because I love holding your hand 🤝","Because you inspire me to be better 🌟","Because your hugs are magical ✨",
+"Because your eyes are mesmerizing 👀","Because I dream about you 💭","Because you make ordinary moments special 💕",
+"Because your voice is music to me 🎶","Because I love your style 👗","Because you make me feel safe 🛡️",
+"Because your kindness is contagious ❤️","Because you make me want to smile constantly 😁","Because I admire your courage 🦋",
+"Because you’re my favorite person 🥰","Because life is sweeter with you 🍬","Because I love seeing you happy 😄",
+"Because you make me feel loved 💖","Because every moment with you is precious 💎","Because I want to make you laugh every day 😂",
+"Because your hugs are better than chocolate 🍫","Because you make my heart skip a beat 💓","Because your creativity amazes me 🎨",
+"Because I love daydreaming about us 🌈","Because you’re my safe place 🏡","Because you have the best smile 😁",
+"Because I love your laugh 😆","Because you always understand me 🤗","Because you make ordinary things fun 🎈",
+"Because your energy is contagious ⚡","Because I love the way you care 🌷","Because your presence calms me 🌊",
+"Because you’re my favorite hello and hardest goodbye 💌","Because I love your quirks 🐾","Because you inspire me to chase dreams 🌠",
+"Because your heart is beautiful ❤️","Because I love when you tease me 😏","Because you make me feel alive 🌟",
+"Because your hugs feel like home 🏡","Because you are my sunshine ☀️","Because I love your determination 💪",
+"Because your smile is my favorite view 🌸","Because I want to make you proud 🏆","Because you are simply amazing 😍",
+"Because I love talking to you 📱","Because your happiness matters to me 💕","Because I love the way you think 🤔",
+"Because your voice is comforting 🎵","Because you make every day better 🌞","Because I love seeing you smile 😊",
+"Because you make life exciting 🎢","Because I love your confidence 💃","Because your energy lifts me up 🕊️",
+"Because I love holding you close 🤗","Because you’re my favorite thought 💭","Because your laughter is the best sound 😂",
+"Because you make me feel special ✨","Because I love dreaming about our future 🌈","Because you make everything brighter 🌟",
+"Because I love your sense of humor 😄","Because your eyes sparkle ✨","Because you are my favorite hello 💌",
+"Because I love our little moments together 🕰️","Because you make me feel lucky 🍀","Because your kindness inspires me 🌷",
+"Because I love your voice 🎶","Because you make me feel important 💖","Because your hugs are the best 🤗",
+"Because you love endlessly 💖","Because you are my Havenelle Naseeb 💌"
+];
+const reasonTab = document.getElementById("reasonTab");
+const reasonList = document.getElementById("reasonList");
+const reasonContent = document.getElementById("reasonContent");
+reasons.forEach(r=>{
+  const li = document.createElement("li");
+  li.textContent = r;
+  li.addEventListener("mouseenter",()=>createHeart(true));
+  reasonContent.appendChild(li);
+});
+reasonTab.addEventListener("click",()=>{
+  reasonList.style.display = reasonList.style.display==="none"?"block":"none";
+  const items = reasonList.querySelectorAll("li");
+  items.forEach((li,i)=>setTimeout(()=>{li.style.opacity=1; li.style.transform="translateX(0)";}, i*100));
+});
+
+// Yes button
+yesBtn.addEventListener("click", ()=>{
+  yesBtn.disabled = true; noBtn.disabled = true;
+  music.play();
+
+  const rect = yesBtn.getBoundingClientRect();
+  for(let i=0;i<40;i++) createHeart(rect.left + yesBtn.offsetWidth/2, rect.top + yesBtn.offsetHeight/2,true);
+  yesBtn.style.transform="scale(1.3)";
+  setTimeout(()=> yesBtn.style.transform="scale(1)", 300);
+  yesBtn.style.background="#ff85c1"; 
+  setTimeout(()=> yesBtn.style.background="#ff4f9a", 300);
+
+  response.classList.remove("hidden");
+  secrets.forEach((s,i)=>setTimeout(()=>s.classList.remove("hidden"),(i+1)*700));
+  photoMessage.classList.remove("hidden");
+  finalMessage.innerHTML="Keep on shining, Astrael, I'm so Proud of you! 💖";
+  finalMessage.classList.remove("hidden");
+  essayBtn.classList.remove("hidden");
+
+  const wordInterval = setInterval(createWord, 400);
+  setTimeout(()=> clearInterval(wordInterval), 20000);
+});
+
+// Essay modal
+const essayBtn = document.getElementById("essayBtn");
+const essayModal = document.getElementById("essayModal");
+const closeModal = document.getElementById("closeModal");
+essayBtn.addEventListener("click",()=>{
+  essayModal.classList.add("show");
+  const content=document.getElementById("essayContent");
+  content.textContent="";
+  const text=`I love you endlessly, in ways words can’t hold, in ways the heart quietly knows.
+Loving you feels like standing in the calm after a storm, safe, alive, and finally home.
+
+I know you will crush DSPC, not because you try, but because everything you touch becomes brighter, stronger, real.
+I believe in you with all that I am, and that belief will never fade.
+
+Even if we don’t see each other, even if time and distance stretch between us, my soul will stay by your side.
+Some connections are deeper than presence, they live in quiet devotion, in the echo of laughter, in the memory of being seen.
+
+You are my Arcadia Bay, the place where life makes sense, where I belong.
+Because of you, I’ve found a home in a world that often feels unsteady, and that home is yours, forever.
+
+Thank you for being my Valentine, Velinelle.
+Loving you is like breathing; it is natural, necessary, and it will follow me everywhere I go.`;
+  let i=0;
+  function typeWriter(){if(i<text.length){content.innerHTML+=text.charAt(i);i++;setTimeout(typeWriter,35);}}
+  typeWriter();
+});
+closeModal.addEventListener("click",()=>{ essayModal.classList.remove("show"); });
+</script>
+</body>
+</html>
